@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.Assertions;
+using System.Runtime.CompilerServices;
 
 public class UI : MonoBehaviour
 {
@@ -12,6 +13,7 @@ public class UI : MonoBehaviour
     [SerializeField] private GameObject gameOverPanel = default;
     [SerializeField] private Text displayResult = default;
 
+    private bool flip;
     private int currentUserScore, currentAIScore = 0;
     private void Awake()
     {
@@ -33,7 +35,7 @@ public class UI : MonoBehaviour
             gameOverPanel.SetActive(false);
     }
 
-    private void FillInName()
+    public void FillInName()
     {
         if (userName && playerName)
             userName.text = playerName.text + " :";
@@ -42,7 +44,7 @@ public class UI : MonoBehaviour
     // called by button click
     public void StartGame()
     {
-        FillInName();
+        //FillInName();
         if (menuPanel)
             menuPanel.SetActive(false);
     }
@@ -62,7 +64,6 @@ public class UI : MonoBehaviour
             default:
                 break;
         }
-
     }
 
     public void DisplayResult(GameOverTypes type)

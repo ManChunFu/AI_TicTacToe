@@ -13,12 +13,16 @@ public class Cell : MonoBehaviour
     public Game GameManager { get; set; }
     public int Index { get; set; }
 
+    private AudioSource audioSource;
+
     private void Awake()
     {
         Assert.IsNotNull(cellButton, "No reference to the Button");
         Assert.IsNotNull(displayImage, "No reference to the DisplayImage");
         Assert.IsNotNull(poopSprite, "No reference to the PoopSprite");
         Assert.IsNotNull(stickSprite, "No reference to the StickSprite");
+
+        audioSource = GetComponent<AudioSource>();
     }
 
     // Called by button click and GameManager

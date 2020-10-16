@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using UnityEngine.Assertions;
+using UnityEngine.SceneManagement;
 
 public class Game : MonoBehaviour
 {
@@ -12,6 +13,7 @@ public class Game : MonoBehaviour
     private float delayForAiMove = 0.1f; // add a little delay to let the player feels like it's ai's turn  
 
     private bool playerStart;
+    private bool doOnce;
     private void Awake()
     {
         Assert.IsNotNull(board, "No reference to the Board");
@@ -58,7 +60,7 @@ public class Game : MonoBehaviour
             playerStart = !playerStart;
         else
             playerStart = true;
-    }
+   }
 
     // called by a button click
     public void Restart()
@@ -76,10 +78,6 @@ public class Game : MonoBehaviour
     // called by a button click
     public void QuitGame()
     {
-#if UNITY_EDITOR
-        UnityEditor.EditorApplication.isPlaying = false;
-#else
-        Application.Quit();
-#endif
+        SceneManager.LoadScene(0);
     }
 }
