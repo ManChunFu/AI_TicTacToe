@@ -10,6 +10,10 @@ public class AI
             if (mainboard[index].CellState == CellStatus.Empty)
             {
                 mainboard[index].CellState = CellStatus.AIMarked;
+                GameStatus status = new GameStatus(mainboard);
+                if (status.IsGameOver)
+                    return index;
+
                 score = Minimax(false, mainboard, int.MinValue, int.MaxValue);
                 mainboard[index].CellState = CellStatus.Empty;
 
