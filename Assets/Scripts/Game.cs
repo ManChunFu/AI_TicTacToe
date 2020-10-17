@@ -13,7 +13,7 @@ public class Game : MonoBehaviour
     private float delayForAiMove = 0.1f; // add a little delay to let the player feels like it's ai's turn  
 
     private bool playerStart;
-    private bool doOnce;
+    private bool firstMove;
     private void Awake()
     {
         Assert.IsNotNull(board, "No reference to the Board");
@@ -48,23 +48,70 @@ public class Game : MonoBehaviour
 
     private void AiTurn()
     {
-        board.Cells[ai.BestMove(Mainboard)].Fill();
+        if (firstMove)
+        {
+            firstMove = false;
+            board.Cells[ai.BestMove(Mainboard, 5)].Fill(); // less check ONLY for the first move (reducing waiting time for ai response)
+        }
+        else
+            board.Cells[ai.BestMove(Mainboard, 9)].Fill();
     }
 
     private void GameOver(GameOverTypes type)
     {
         uiManager.DisplayResult(type);
         uiManager.AddScore(type);
-
-        if (type == GameOverTypes.Tie)
-            playerStart = !playerStart;
-        else
-            playerStart = true;
    }
+
+    /// <summary>
+    /// Game rule: Always change the starting side (ai starts or user starts). No changes Only if the one starts and also wins the game.  
+    /// </summary>
+    /// <param name="type">Type of GameOver</param>
+    /// <returns>if player should starts the game next round</returns>
+    private bool ShouldPlayerStarts(GameOverTypes type)
+    {
+        if (playerStart)
+        {
+            switch (type)
+            {
+                case GameOverTypes.UserWon:
+                    return true;
+                case GameOverTypes.AIWon:
+                    return false;
+                case GameOverTypes.Tie:
+                    return false;
+                case GameOverTypes.Unknown:
+                    return true;
+                default:
+                    break;
+            }
+        }
+        else
+        {
+            switch (type)
+            {
+                case GameOverTypes.UserWon:
+                    return true;
+                case GameOverTypes.AIWon:
+                    return false;
+                case GameOverTypes.Tie:
+                    return true;
+                case GameOverTypes.Unknown:
+                    return false;
+                default:
+                    break;
+            }
+        }
+        return true;
+    }
 
     // called by a button click
     public void Restart()
     {
+        GameStatus status = new GameStatus(Mainboard);
+        // Check who should start next round
+        playerStart = ShouldPlayerStarts(status.GameOverType);
+
         foreach (Cell cell in board.Cells)
         {
             cell.ClearFill();
@@ -72,7 +119,11 @@ public class Game : MonoBehaviour
         uiManager.Restart();
 
         if (!playerStart)
+        {
+            IsUserTurn = false;
             board.Cells[ai.RandomMove()].Fill();
+            firstMove = false;
+        }
     }
 
     // called by a button click

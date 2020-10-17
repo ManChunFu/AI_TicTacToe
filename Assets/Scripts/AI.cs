@@ -2,10 +2,10 @@
 
 public class AI
 {
-    public int BestMove(BoardCell[] mainboard) 
+    public int BestMove(BoardCell[] mainboard, int depth) 
     {
         int score = 0, bestScore = -100, bestMoveIndex = -1;
-        for (int index = 0; index < 9; index++)
+        for (int index = 0; index < depth; index++)
         {
             if (mainboard[index].CellState == CellStatus.Empty)
             {

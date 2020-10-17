@@ -21,7 +21,6 @@ public class GameStatus
         Score = (GameOverType == GameOverTypes.UserWon) ? -1 : 1;
     }
 
-
     public GameStatus(BoardCell[] mainboard)
     {
         for (int rowIndex = 0; rowIndex < 3; rowIndex++)
