@@ -10,10 +10,10 @@ public class Cell : MonoBehaviour
     [SerializeField] private Sprite poopSprite = default;
     [SerializeField] private Sprite stickSprite = default;
 
+
     public Game GameManager { get; set; }
     public int Index { get; set; }
-
-    private AudioSource audioSource;
+    public GameObject CoverPanel { get; set; }
 
     private void Awake()
     {
@@ -22,25 +22,29 @@ public class Cell : MonoBehaviour
         Assert.IsNotNull(poopSprite, "No reference to the PoopSprite");
         Assert.IsNotNull(stickSprite, "No reference to the StickSprite");
 
-        audioSource = GetComponent<AudioSource>();
     }
+
 
     // Called by button click and GameManager
     public void Fill()
     {
         // no more interactable once it's filled with text
         cellButton.interactable = false;
+        CoverPanel.SetActive(true);
+
         if (GameManager.IsUserTurn)
         {
             displayImage.sprite = stickSprite;
             ChangeImageAlpha(1.0f);
             GameManager.Mainboard[Index].CellState = CellStatus.UserMarked;
+
         }
         else
         {
             displayImage.sprite = poopSprite;
             ChangeImageAlpha(1.0f);
             GameManager.Mainboard[Index].CellState = CellStatus.AIMarked;
+            CoverPanel.SetActive(false);
         }
 
         GameManager.Switch();

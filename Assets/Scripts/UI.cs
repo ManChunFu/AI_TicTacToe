@@ -2,6 +2,9 @@
 using UnityEngine.UI;
 using UnityEngine.Assertions;
 using System.Runtime.CompilerServices;
+using System.Collections;
+using UnityEngine.Networking;
+using System;
 
 public class UI : MonoBehaviour
 {
@@ -15,6 +18,7 @@ public class UI : MonoBehaviour
 
     private bool flip;
     private int currentUserScore, currentAIScore = 0;
+    private AI ai = new AI();
     private void Awake()
     {
         Assert.IsNotNull(menuPanel, "No reference to MenuPanel");
@@ -28,6 +32,8 @@ public class UI : MonoBehaviour
 
     private void Start()
     {
+        StartCoroutine(ai.WakeUpAPI());
+
         if (!menuPanel.activeSelf)
             menuPanel.SetActive(true);
 
@@ -63,6 +69,22 @@ public class UI : MonoBehaviour
                 break;
             default:
                 break;
+        }
+
+
+    }
+
+    public IEnumerator SendScoreToAPI(Action onComplete = null)
+    {
+        WWWForm form = new WWWForm();
+        form.AddField("userScore", currentUserScore.ToString());
+        form.AddField("aiScore", currentAIScore.ToString());
+        using (var apiService = UnityWebRequest.Post("https://apiaiminimax.azurewebsites.net/api/scoreboard", form))
+        {
+            yield return apiService.SendWebRequest();
+            if (apiService.isNetworkError || apiService.isHttpError)
+                print(apiService.error);
+            else onComplete?.Invoke();
         }
     }
 

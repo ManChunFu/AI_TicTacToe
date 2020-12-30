@@ -14,6 +14,10 @@ public class BoardCell
     public int ColumnIndex { get; set; }
     public CellStatus CellState { get; set; } = CellStatus.Empty;
 
+    public override string ToString()
+    {
+        return $"{{\"index\":{Index},\"rowIndex\":{RowIndex},\"columnIndex\":{ColumnIndex},\"cellState\":{(int)CellState}}}";
+    }
     public BoardCell(int index)
     {
         this.RowIndex = index / 3;

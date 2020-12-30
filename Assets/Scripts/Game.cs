@@ -9,11 +9,10 @@ public class Game : MonoBehaviour
 
     public BoardCell[] Mainboard { get; set; }
     public bool IsUserTurn;
+    private float delayForAiMove = 0.1f; // a little delay just in case waiting too long for API response
+    private int previousAIMove;
     private AI ai = new AI();
-    private float delayForAiMove = 0.1f; // add a little delay to let the player feels like it's ai's turn  
-
     private bool playerStart;
-    private bool firstMove;
     private void Awake()
     {
         Assert.IsNotNull(board, "No reference to the Board");
@@ -27,8 +26,8 @@ public class Game : MonoBehaviour
 
         IsUserTurn = true;
         playerStart = true;
+        previousAIMove = ai.BestMove;
     }
-
 
     public void Switch()
     {
@@ -43,20 +42,23 @@ public class Game : MonoBehaviour
         }
 
         if (!IsUserTurn)
-            Invoke("AiTurn", delayForAiMove);
+        {
+            StartCoroutine(ai.BestMoveCoroutine(Mainboard, 9, () => AiTurn())); // use lambda expression
+            //Invoke("AiTurn", delayForAiMove);
+        }
     }
 
     private void AiTurn()
     {
-        if (firstMove)
+        if (ai.BestMove != previousAIMove)
         {
-            firstMove = false;
-            board.Cells[ai.BestMove(Mainboard, 5)].Fill(); // less check ONLY for the first move (reducing waiting time for ai response)
+            board.Cells[ai.BestMove].Fill();
+            previousAIMove = ai.BestMove;
         }
         else
-            board.Cells[ai.BestMove(Mainboard, 9)].Fill();
+            Invoke("AiTurn", delayForAiMove);
     }
-
+        
     private void GameOver(GameOverTypes type)
     {
         uiManager.DisplayResult(type);
@@ -105,6 +107,13 @@ public class Game : MonoBehaviour
         return true;
     }
 
+    private void AIStartGame()
+    {
+        IsUserTurn = false;
+        board.Cells[ai.RandomMove()].Fill();
+        previousAIMove = ai.BestMove;
+    }
+
     // called by a button click
     public void Restart()
     {
@@ -117,18 +126,17 @@ public class Game : MonoBehaviour
             cell.ClearFill();
         }
         uiManager.Restart();
+        board.DisableCoverPanel();
+
+        previousAIMove = ai.BestMove = -1;
 
         if (!playerStart)
-        {
-            IsUserTurn = false;
-            board.Cells[ai.RandomMove()].Fill();
-            firstMove = false;
-        }
+            AIStartGame();
     }
 
     // called by a button click
     public void QuitGame()
     {
-        SceneManager.LoadScene(0);
+        StartCoroutine(uiManager.SendScoreToAPI(() => SceneManager.LoadScene(0)));
     }
 }
